@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متعلم الإنجليزية - English Learning App</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="تطبيق بسيط لتعلم الكلمات الإنجليزية مع النطق الصوتي">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 420px;
+            margin: 20px auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 26px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 15px;
+        }
+        
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .audio-btn {
+            background: #3498db;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .audio-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .english-word {
+            background: #f8f9fa;
+            padding: 30px 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 3px solid #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+        
+        .english-word h2 {
+            font-size: 34px;
+            color: #000000;
+            font-weight: bold;
+            margin: 0;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .speaker-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .speaker-btn:hover {
+            background: #ecf0f1;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .speaker-btn.speaking {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.15); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .option-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .option-btn:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .option-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .option-btn.correct {
+            background: #27ae60;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .option-btn.wrong {
+            background: #e74c3c;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .option-btn:disabled {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(155, 89, 182, 0.3);
+        }
+        
+        .control-btn:hover:not(:disabled) {
+            background: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(155, 89, 182, 0.4);
+        }
+        
+        .control-btn.exit-btn {
+            background: #e74c3c;
+            box-shadow: 0 3px 8px rgba(231, 76, 60, 0.3);
+        }
+        
+        .control-btn.exit-btn:hover {
+            background: #c0392b;
+        }
+        
+        .control-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #ecf0f1 0%, #dfe6e9 100%);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #2c3e50;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid #bdc3c7;
+        }
+
+        .add-words-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .add-words-section h3 {
+            margin-bottom: 15px;
+            text-align: center;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .add-words-section textarea {
+            width: 100%;
+            height: 140px;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            resize: vertical;
+            transition: border 0.3s ease;
+            font-family: inherit;
+        }
+
+        .add-words-section textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .add-words-section button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .add-words-section button:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .message {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.correct {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .message.wrong {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .session-stats {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .session-stats h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .session-stats p {
+            margin: 8px 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #ecf0f1;
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-radius: 12px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .english-word h2 {
+                font-size: 28px;
+            }
+            
+            .option-btn {
+                padding: 16px;
+                font-size: 16px;
+            }
+            
+            .control-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 متعلم الإنجليزية</h1>
+            <p>اختر الترجمة الصحيحة للكلمة - Learn English Words</p>
+        </div>
+
+        <!-- Audio Controls -->
+        <div class="audio-controls">
+            <button class="audio-btn" onclick="toggleAutoSpeak()">
+                <span id="autoSpeakIcon">🔊</span>
+                <span id="autoSpeakText">النطق التلقائي</span>
+            </button>
+            <button class="audio-btn" onclick="repeatPronunciation()">
+                🔄 كرر النطق
+            </button>
+        </div>
+
+        <!-- Feedback Message -->
+        <div id="message" class="message" style="display: none;"></div>
+
+        <!-- English Word -->
+        <div class="english-word">
+            <h2 id="englishWord">Loading...</h2>
+            <button class="speaker-btn" onclick="speakCurrentWord()">🔊</button>
+        </div>
+
+        <!-- Translation Options -->
+        <div class="options">
+            <button class="option-btn" onclick="checkAnswer(0)">...</button>
+            <button class="option-btn" onclick="checkAnswer(1)">...</button>
+            <button class="option-btn" onclick="checkAnswer(2)">...</button>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="controls">
+            <button class="control-btn" onclick="toggleAddWords()">➕ إضافة كلمات</button>
+            <button class="control-btn" onclick="skipWord()" style="background: #e67e22;">⏭️ تخطي</button>
+            <button class="control-btn exit-btn" onclick="showSessionStats()">📊 إحصائيات</button>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats" id="stats">
+            جاري التحميل...
+        </div>
+
+        <!-- Add Words Section -->
+        <div id="addWordsPanel" class="add-words-section" style="display: none;">
+            <h3>إضافة كلمات جديدة</h3>
+            <textarea id="wordsTextarea" placeholder="أدخل الكلمات بالصيغة: english=عربي
+مثال:
+book=كتاب
+water=ماء
+computer=حاسوب
+
+يمكنك لصق قائمة كاملة من الكلمات هنا..."></textarea>
+            <button onclick="addMultipleWords()">💾 إضافة الكلمات</button>
+            <div style="margin-top: 15px; text-align: center;">
+                <button class="control-btn" onclick="addDefaultWords()" style="background: #e67e22; width: auto; padding: 10px 20px;">
+                    📚 إضافة 1000 كلمة افتراضية
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Statistics -->
+        <div id="sessionStats" class="session-stats" style="display: none;">
+            <h3>📊 إحصائيات الجلسة</h3>
+            <p id="sessionInfo">تم الإجابة على 0 كلمة</p>
+            <p id="sessionCorrect">الإجابات الصحيحة: 0</p>
+            <p id="sessionPercentage">النسبة: 0%</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress" style="width: 0%"></div>
+            </div>
+            <button class="control-btn" onclick="hideSessionStats()" style="background: #3498db; margin-top: 15px; width: auto; padding: 10px 25px;">
+                ➡️ استمرار
+            </button>
+            <button class="control-btn exit-btn" onclick="resetSession()" style="margin-top: 10px; width: auto; padding: 8px 20px;">
+                🔄 جلسة جديدة
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Text-to-Speech Service
+        class TTSService {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.voices = [];
+                this.selectedVoice = null;
+                this.isSupported = false;
+                this.isInitialized = false;
+                this.rate = 1.0;
+                this.pitch = 1.0;
+                this.volume = 1.0;
+                
+                this.init();
+            }
+
+            init() {
+                if (!this.synth) {
+                    console.warn('Text-to-Speech غير مدعوم في هذا المتصفح');
+                    return;
+                }
+
+                this.isSupported = true;
+                this.loadVoices();
+                
+                this.synth.onvoiceschanged = () => {
+                    this.loadVoices();
+                };
+            }
+
+            loadVoices() {
+                this.voices = this.synth.getVoices();
+                
+                // Select English voice
+                this.selectedVoice = this.voices.find(voice => 
+                    voice.lang.includes('en-US')
+                ) || this.voices.find(voice => 
+                    voice.lang.includes('en')
+                ) || this.voices[0];
+                
+                this.isInitialized = true;
+                console.log('✅ تم تحميل الأصوات بنجاح');
+            }
+
+            speak(text) {
+                if (!this.isSupported || !this.isInitialized) {
+                    console.warn('TTS غير جاهز');
+                    return false;
+                }
+
+                this.stop();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = this.selectedVoice;
+                utterance.rate = this.rate;
+                utterance.pitch = this.pitch;
+                utterance.volume = this.volume;
+
+                utterance.onstart = () => {
+                    document.querySelector('.speaker-btn').classList.add('speaking');
+                };
+
+                utterance.onend = () => {
+                    document.querySelector('.speaker-btn').classList.remove('speaking');
+                };
+
+                utterance.onerror = (error) => {
+                    console.error('❌ خطأ في النطق:', error);
+                    document.querySelector('.speaker-btn').classList.remove('speaking');
+                };
+
+                this.synth.speak(utterance);
+                return true;
+            }
+
+            stop() {
+                if (this.isSupported) {
+                    this.synth.cancel();
+                }
+            }
+
+            setRate(rate) {
+                this.rate = Math.max(0.1, Math.min(2, rate));
+            }
+
+            setPitch(pitch) {
+                this.pitch = Math.max(0.1, Math.min(2, pitch));
+            }
+
+            isSpeaking() {
+                return this.isSupported ? this.synth.speaking : false;
+            }
+        }
+
+        // Initialize TTS Service
+        const ttsService = new TTSService();
+
+        // Word Database
+        let words = [
+            { english: "Book", correct: "كتاب", wrong1: "قلم", wrong2: "مدرسة" },
+            { english: "She", correct: "هي", wrong1: "هو", wrong2: "هم" },
+            { english: "Red", correct: "أحمر", wrong1: "أزرق", wrong2: "أخضر" },
+            { english: "House", correct: "منزل", wrong1: "سيارة", wrong2: "شجرة" },
+            { english: "Water", correct: "ماء", wrong1: "نار", wrong2: "هواء" },
+            { english: "Cat", correct: "قطة", wrong1: "كلب", wrong2: "طائر" },
+            { english: "School", correct: "مدرسة", wrong1: "بيت", wrong2: "عمل" },
+            { english: "Car", correct: "سيارة", wrong1: "طائرة", wrong2: "قطار" }
+        ];
+
+        let usedIndices = [];
+        let correctAnswers = 0;
+        let autoSpeak = true;
+        let currentWord = null;
+        
+        // Session Statistics
+        let sessionAnswers = 0;
+        let sessionCorrect = 0;
+        let autoNextTimer = null;
+
+        // Initialize App
+        function init() {
+            checkTTSSupport();
+            loadWords();
+            showRandomWord();
+            updateStats();
+            
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('✅ Service Worker registered'))
+                    .catch(error => console.log('❌ Service Worker registration failed:', error));
+            }
+        }
+
+        // Check TTS Support
+        function checkTTSSupport() {
+            if (!ttsService.isSupported) {
+                document.getElementById('autoSpeakIcon').textContent = '🔇';
+                document.getElementById('autoSpeakText').textContent = 'النطق غير مدعوم';
+            }
+        }
+
+        // Load words from localStorage
+        function loadWords() {
+            const savedWords = localStorage.getItem('englishWords');
+            if (savedWords) {
+                try {
+                    words = JSON.parse(savedWords);
+                } catch (e) {
+                    console.error('Error loading words:', e);
+                }
+            }
+            const savedScore = localStorage.getItem('correctAnswers');
+            if (savedScore) {
+                correctAnswers = parseInt(savedScore) || 0;
+            }
+        }
+
+        // Save words to localStorage
+        function saveWords() {
+            localStorage.setItem('englishWords', JSON.stringify(words));
+            localStorage.setItem('correctAnswers', correctAnswers.toString());
+        }
+
+        // Show random word
+        function showRandomWord() {
+            // Clear any existing timer
+            if (autoNextTimer) {
+                clearTimeout(autoNextTimer);
+                autoNextTimer = null;
+            }
+
+            // Reset used indices if all words used
+            if (usedIndices.length >= words.length) {
+                usedIndices = [];
+            }
+
+            // Select random unused word
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * words.length);
+            } while (usedIndices.includes(randomIndex) && words.length > usedIndices.length);
+
+            usedIndices.push(randomIndex);
+            currentWord = words[randomIndex];
+            
+            displayWord(currentWord);
+        }
+
+        // Display word with options
+        function displayWord(word) {
+            document.getElementById('englishWord').textContent = word.english;
+            
+            const options = document.querySelectorAll('.option-btn');
+            const allOptions = [word.correct, word.wrong1, word.wrong2];
+            
+            // Shuffle options
+            for (let i = allOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+            }
+            
+            options.forEach((btn, index) => {
+                btn.textContent = allOptions[index];
+                btn.className = 'option-btn';
+                btn.disabled = false;
+            });
+            
+            // Hide message and next button
+            document.getElementById('message').style.display = 'none';
+            
+            // Auto-speak if enabled
+            if (autoSpeak) {
+                setTimeout(() => {
+                    speakCurrentWord();
+                }, 400);
+            }
+        }
+
+        // Speak current word
+        function speakCurrentWord() {
+            const currentWordText = document.getElementById('englishWord').textContent;
+            ttsService.speak(currentWordText);
+        }
+
+        // Repeat pronunciation
+        function repeatPronunciation() {
+            speakCurrentWord();
+        }
+
+        // Toggle auto-speak
+        function toggleAutoSpeak() {
+            autoSpeak = !autoSpeak;
+            const icon = document.getElementById('autoSpeakIcon');
+            const text = document.getElementById('autoSpeakText');
+            
+            if (autoSpeak) {
+                icon.textContent = '🔊';
+                text.textContent = 'النطق التلقائي';
+            } else {
+                icon.textContent = '🔇';
+                text.textContent = 'النطق متوقف';
+            }
+        }
+
+        // Check answer
+        function checkAnswer(selectedIndex) {
+            const options = document.querySelectorAll('.option-btn');
+            const selectedText = options[selectedIndex].textContent;
+            const messageElement = document.getElementById('message');
+            
+            // Update session statistics
+            sessionAnswers++;
+            
+            if (selectedText === currentWord.correct) {
+                // Correct answer
+                options.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === currentWord.correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+                
+                correctAnswers++;
+                sessionCorrect++;
+                saveWords();
+                
+                // Show success message
+                messageElement.textContent = '🎉 إجابة صحيحة! ✓';
+                messageElement.className = 'message correct';
+                messageElement.style.display = 'block';
+                
+                // Auto next after 1 second
+                autoNextTimer = setTimeout(() => {
+                    showRandomWord();
+                }, 1000);
+                
+            } else {
+                // Wrong answer - show correct answer and repeat word
+                options.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === currentWord.correct) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent === selectedText) {
+                        btn.classList.add('wrong');
+                    }
+                });
+                
+                // Show error message
+                messageElement.textContent = '❌ إجابة خاطئة! جرب مرة أخرى';
+                messageElement.className = 'message wrong';
+                messageElement.style.display = 'block';
+                
+                // Repeat the same word with new options after 2 seconds
+                autoNextTimer = setTimeout(() => {
+                    displayWord(currentWord);
+                }, 2000);
+            }
+            
+            updateStats();
+        }
+
+        // Skip to next word
+        function skipWord() {
+            showRandomWord();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('stats').textContent = 
+                `الكلمات: ${words.length} | الإجابات الصحيحة: ${correctAnswers}`;
+        }
+
+        // Toggle add words panel
+        function toggleAddWords() {
+            const panel = document.getElementById('addWordsPanel');
+            const sessionPanel = document.getElementById('sessionStats');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            sessionPanel.style.display = 'none';
+        }
+
+        // Add multiple words
+        function addMultipleWords() {
+            const textarea = document.getElementById('wordsTextarea');
+            const lines = textarea.value.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line && line.includes('=')) {
+                    const [english, arabic] = line.split('=').map(part => part.trim());
+                    if (english && arabic) {
+                        // Check if word already exists
+                        const exists = words.some(w => w.english.toLowerCase() === english.toLowerCase());
+                        if (!exists) {
+                            const wrongTranslations = generateWrongTranslations(arabic);
+                            words.push({
+                                english: english,
+                                correct: arabic,
+                                wrong1: wrongTranslations[0],
+                                wrong2: wrongTranslations[1]
+                            });
+                            addedCount++;
+                        }
+                    }
+                }
+            });
+
+            if (addedCount > 0) {
+                saveWords();
+                updateStats();
+                alert(`✅ تمت إضافة ${addedCount} كلمة جديدة بنجاح!`);
+                textarea.value = '';
+                document.getElementById('addWordsPanel').style.display = 'none';
+            } else {
+                alert('⚠️ لم يتم إضافة أي كلمات. تأكد من صيغة الكلمات (english=عربي)');
+            }
+        }
+
+        // Generate wrong translations
+        function generateWrongTranslations(correctTranslation) {
+            const commonWords = [
+                'كبير', 'صغير', 'سريع', 'بطيء', 'قديم', 'جديد', 'بعيد', 'قريب', 
+                'سهل', 'صعب', 'طويل', 'قصير', 'ثقيل', 'خفيف', 'قاس', 'لين',
+                'جميل', 'قبيح', 'نظيف', 'وسخ', 'غالي', 'رخيص', 'ساخن', 'بارد'
+            ];
+            const wrongs = [];
+            
+            while (wrongs.length < 2) {
+                const randomWord = commonWords[Math.floor(Math.random() * commonWords.length)];
+                if (randomWord !== correctTranslation && !wrongs.includes(randomWord)) {
+                    wrongs.push(randomWord);
+                }
+                
+                // Prevent infinite loop
+                if (wrongs.length === 0 && commonWords.length <= 2) {
+                    wrongs.push('كبير', 'صغير');
+                    break;
+                }
+            }
+            
+            return wrongs;
+        }
+
+        // Add default words
+        function addDefaultWords() {
+            const defaultWords = [
+                "the=ال", "of=من", "to=إلى", "and=و", "a=أ", "in=في", "is=يكون", "it=هو", "you=أنت",
+                "that=ذلك", "he=هو", "was=كان", "for=ل", "on=على", "are=يكون", "with=مع", "as=ك",
+                "I=أنا", "his=له", "they=هم", "be=يكون", "at=في", "one=واحد", "have=يملك", "this=هذا",
+                "from=من", "by=بواسطة", "word=كلمة", "but=لكن", "what=ما", "some=بعض", "time=وقت",
+                "number=رقم", "people=ناس", "water=ماء", "day=يوم", "part=جزء", "sound=صوت", "work=عمل",
+                "place=مكان", "year=سنة", "back=خلف", "thing=شيء", "name=اسم", "sentence=جملة", "man=رجل",
+                "line=خط", "boy=ولد", "life=حياة", "end=نهاية", "house=منزل", "picture=صورة", "try=يحاول",
+                "us=نا", "again=مرة أخرى", "animal=حيوان", "point=نقطة", "mother=أم", "world=عالم",
+                "computer=حاسوب", "laptop=حاسوب محمول", "desktop=حاسوب مكتبي", "server=خادم", "device=جهاز",
+                "hardware=عتاد", "software=برمجيات", "application=تطبيق", "program=برنامج", "system=نظام",
+                "network=شبكة", "internet=إنترنت", "website=موقع ويب", "browser=متصفح", "email=بريد إلكتروني",
+                "phone=هاتف", "mobile=متحرك", "smartphone=هاتف ذكي", "tablet=لوحي", "camera=كاميرا",
+                "screen=شاشة", "keyboard=لوحة مفاتيح", "mouse=فأرة", "printer=طابعة", "memory=ذاكرة",
+                "storage=تخزين", "file=ملف", "folder=مجلد", "data=بيانات", "information=معلومات"
+            ];
+
+            let addedCount = 0;
+            defaultWords.forEach(wordPair => {
+                if (wordPair.includes('=')) {
+                    const [english, arabic] = wordPair.split('=').map(part => part.trim());
+                    if (english && arabic) {
+                        // Check if word already exists
+                        const exists = words.some(w => w.english.toLowerCase() === english.toLowerCase());
+                        if (!exists) {
+                            const wrongTranslations = generateWrongTranslations(arabic);
+                            words.push({
+                                english: english,
+                                correct: arabic,
+                                wrong1: wrongTranslations[0],
+                                wrong2: wrongTranslations[1]
+                            });
+                            addedCount++;
+                        }
+                    }
+                }
+            });
+
+            saveWords();
+            updateStats();
+            alert(`✅ تمت إضافة ${addedCount} كلمة افتراضية بنجاح!`);
+            document.getElementById('addWordsPanel').style.display = 'none';
+        }
+
+        // Show session statistics
+        function showSessionStats() {
+            const panel = document.getElementById('sessionStats');
+            const addPanel = document.getElementById('addWordsPanel');
+            panel.style.display = 'block';
+            addPanel.style.display = 'none';
+            
+            const percentage = sessionAnswers > 0 ? Math.round((sessionCorrect / sessionAnswers) * 100) : 0;
+            
+            document.getElementById('sessionInfo').textContent = `تم الإجابة على ${sessionAnswers} كلمة`;
+            document.getElementById('sessionCorrect').textContent = `الإجابات الصحيحة: ${sessionCorrect}`;
+            document.getElementById('sessionPercentage').textContent = `النسبة: ${percentage}%`;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressFill').textContent = `${percentage}%`;
+        }
+
+        // Hide session statistics
+        function hideSessionStats() {
+            document.getElementById('sessionStats').style.display = 'none';
+        }
+
+        // Reset session
+        function resetSession() {
+            sessionAnswers = 0;
+            sessionCorrect = 0;
+            hideSessionStats();
+            showRandomWord();
+        }
+
+        // Initialize app when page loads
+        window.addEventListener('load', init);
+
+        // Service Worker registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('✅ ServiceWorker registered successfully');
+                    })
+                    .catch(function(error) {
+                        console.log('❌ ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
